@@ -7,6 +7,11 @@ inputs:
     required: false
     default: gcc-latest
 
+  sudo:
+    description: Use sudo for installation
+    required: false
+    default: true
+
 outputs:
   cc:
     description: CC binary name
@@ -23,7 +28,7 @@ runs:
       shell: bash
       run: |
         echo Install "${{ inputs.compiler }}" on "${{ runner.os }}"
-        ${GITHUB_ACTION_PATH}/script.sh "${{ runner.os }}" "${{ inputs.compiler }}"
+        ${GITHUB_ACTION_PATH}/script.sh "${{ runner.os }}" "${{ inputs.compiler }}" "${{ inputs.sudo }}"
 
 branding:
   color: blue

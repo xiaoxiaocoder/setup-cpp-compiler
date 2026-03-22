@@ -8,29 +8,63 @@ on:
     #branches: [ master ]
 
 jobs:
-  test-linux-macos:
+  test-linux:
     strategy:
       fail-fast: false
       matrix:
-        os-version: [ ubuntu-latest, macos-latest ]
-        compiler: [ latest, gcc-latest, gcc-10, g++-11, gcc-12, clang, clang-10, clang-11, clang++-12, clang++-14, clang++-15 ]
+        os-version: [ ubuntu-24.04, ubuntu-22.04 ]
+        compiler: [ latest, gcc-latest, gcc-15, g++-12, clang, clang-20, clang++-19, clang-16, clang++-15 ]
         exclude:
-          - os-version: macos-latest
-            compiler: latest
-          - os-version: macos-latest
-            compiler: gcc-latest
-          - os-version: macos-latest
-            compiler: gcc
+         - os-version: ubuntu-24.04
+           compiler: gcc-15
+         - os-version: ubuntu-22.04
+           compiler: gcc-15
+         - os-version: ubuntu-22.04
+           compiler: clang-20
+         - os-version: ubuntu-22.04
+           compiler: clang++-19
+         - os-version: ubuntu-22.04
+           compiler: clang-16
 
     runs-on: ${{ matrix.os-version }}
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
+
       - name: Install compiler
         id: install_cc
         uses: rlalik/setup-cpp-compiler@master
         with:
           compiler: ${{ matrix.compiler }}
+
+      - name: Check compiler
+        shell: bash
+        env:
+            CC: ${{ steps.install_cc.outputs.cc }}
+            CXX: ${{ steps.install_cc.outputs.cxx }}
+        run: |
+          $CC --version
+          $CXX --version
+
+  test-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os-version: [ macos-latest ]
+        compiler: [ gcc, gcc-14, g++-11, clang, clang-21, clang++-14 ]
+
+    runs-on: ${{ matrix.os-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install compiler
+        id: install_cc
+        uses: rlalik/setup-cpp-compiler@master
+        with:
+          compiler: ${{ matrix.compiler }}
+
       - name: Check compiler
         shell: bash
         env:
@@ -51,11 +85,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Install compiler
         id: install_cc
         uses: rlalik/setup-cpp-compiler@master
         with:
           compiler: ${{ matrix.compiler }}
+
       - name: Check compiler
         shell: bash
         env:
@@ -64,4 +100,3 @@ jobs:
         run: |
           $CC --version
           $CXX --version
-
